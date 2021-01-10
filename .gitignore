@@ -1,0 +1,11 @@
+.settings/
+.vscode/
+.project
+.classpath
+target/
+.idea/
+*.tar.gz
+spl-net.iml
+bin/
+Client/bin/
+
