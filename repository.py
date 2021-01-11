@@ -1,6 +1,7 @@
-from dao import *
+from dao import Dao
 import sqlite3
 import atexit
+from dto import *
 
 class _Repository:
     def __init__(self):
