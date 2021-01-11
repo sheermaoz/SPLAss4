@@ -5,7 +5,7 @@ from dto import *
 
 class _Repository:
     def __init__(self):
-        self._conn = sqlite3.connect('vaccines.db')
+        self._conn = sqlite3.connect('database.db')
         self.vaccines = Vaccines(self._conn)
         self.logistics = Logistics(self._conn)
         self.clinics = Clinics(self._conn)
