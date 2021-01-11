@@ -8,4 +8,6 @@ target/
 spl-net.iml
 bin/
 Client/bin/
+__pycache__/
+vaccines.db
 
