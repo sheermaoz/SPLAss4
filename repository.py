@@ -1,4 +1,4 @@
-from dao import Dao
+from dao import *
 import sqlite3
 import atexit
 from dto import *
@@ -6,10 +6,10 @@ from dto import *
 class _Repository:
     def __init__(self):
         self._conn = sqlite3.connect('vaccines.db')
-        self.vaccines = Dao(Vaccine, self._conn)
-        self.logistics = Dao(Logistic, self._conn)
-        self.clinics = Dao(Clinic, self._conn)
-        self.suppliers = Dao(Supplier, self._conn)
+        self.vaccines = Vaccines(self._conn)
+        self.logistics = Logistics(self._conn)
+        self.clinics = Clinics(self._conn)
+        self.suppliers = Suppliers(self._conn)
 
     def _close(self):
         self._conn.commit()
@@ -19,7 +19,7 @@ class _Repository:
     def create_tables(self):
         self._conn.executescript("""
         CREATE TABLE IF NOT EXISTS logistics (
-            id      INTEGER         PRIMARY KEY,
+            id      INTEGER  PRIMARY KEY,
             name    TEXT        NOT NULL,
             count_sent INTEGER NOT NULL,
             count_received INTEGER NOT NULL
@@ -39,7 +39,7 @@ class _Repository:
         );
 
         CREATE TABLE IF NOT EXISTS vaccines (
-            id INT PRIMARY KEY,
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
             date DATE NOT NULL,
             supplier INT REFERENCES suppliers(id),
             quantity INT NOT NULL

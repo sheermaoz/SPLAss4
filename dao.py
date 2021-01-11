@@ -1,29 +1,31 @@
 import inspect
+from dto import *
        
 
-class Dao:
-    def __init__(self, dto_type, conn):
+class Vaccines:
+    def __init__(self, conn):
         self._conn = conn
-        self._dto_type = dto_type
+        self._table_name = 'vaccines'
  
-        #dto_type is a class, its __name__ field contains a string representing the name of the class.
-        self._table_name = dto_type.__name__.lower() + 's'
- 
-    def insert(self, dto_instance):
-        ins_dict = vars(dto_instance)
- 
+    def insert(self, vaccine):
+        ins_dict = vars(vaccine)
+        ins_dict.pop('id')
         column_names = ','.join(ins_dict.keys())
         params = ins_dict.values()
         qmarks = ','.join(['?'] * len(ins_dict))
  
         stmt = 'INSERT INTO {} ({}) VALUES ({})'.format(self._table_name, column_names, qmarks)
-        print(params)
         self._conn.execute(stmt, list(params))
  
     def find_all(self):
         c = self._conn.cursor()
         c.execute('SELECT * FROM {}'.format(self._table_name))
-        return orm(c, self._dto_type)
+        return [Vaccine(*row) for row in c.fetchall()]
+    
+    def find_all_by_date(self):
+        c = self._conn.cursor()
+        c.execute('SELECT * FROM {} ORDER BY date DESC'.format(self._table_name))
+        return [Vaccine(*row) for row in c.fetchall()]
  
     def find(self, **keyvals):
         column_names = keyvals.keys()
@@ -32,8 +34,62 @@ class Dao:
         stmt = 'SELECT * FROM {} WHERE {}'.format(self._table_name, ' AND '.join([col + '=?' for col in column_names]))
  
         c = self._conn.cursor()
-        c.execute(stmt, params)
-        return orm(c, self._dto_type)
+        c.execute(stmt, list(params))
+        return [Vaccine(*row) for row in c.fetchall()]
+    
+    def delete(self, **keyvals):
+        column_names = keyvals.keys()
+        params = keyvals.values()
+ 
+        stmt = 'DELETE FROM {} WHERE {}'.format(self._table_name, ' AND '.join([col + '=?' for col in column_names]))
+ 
+        c = self._conn.cursor()
+        c.execute(stmt, list(params))
+
+    def update(self, set_values, cond):
+        set_column_names = set_values.keys()
+        set_params = set_values.values()
+ 
+        cond_column_names = cond.keys()
+        cond_params = cond.values()
+ 
+        params = list(set_params) + list(cond_params)
+ 
+        stmt = 'UPDATE {} SET {} WHERE {}'.format(self._table_name,
+                                                      ', '.join([set + '=?' for set in set_column_names]),
+                                                      ' AND '.join([cond + '=?' for cond in cond_column_names]))
+ 
+        self._conn.execute(stmt, list(params))
+    
+class Clinics:
+    def __init__(self, conn):
+        self._conn = conn
+        self._table_name = 'clinics'
+ 
+    def insert(self, vaccine):
+        ins_dict = vars(vaccine)
+ 
+        column_names = ','.join(ins_dict.keys())
+        params = ins_dict.values()
+        qmarks = ','.join(['?'] * len(ins_dict))
+ 
+        stmt = 'INSERT INTO {} ({}) VALUES ({})'.format(self._table_name, column_names, qmarks)
+        self._conn.execute(stmt, list(params))
+ 
+    def find_all(self):
+        c = self._conn.cursor()
+        c.execute('SELECT * FROM {}'.format(self._table_name))
+        return [Clinic(*row) for row in c.fetchall()]
+    
+ 
+    def find(self, **keyvals):
+        column_names = keyvals.keys()
+        params = keyvals.values()
+ 
+        stmt = 'SELECT * FROM {} WHERE {}'.format(self._table_name, ' AND '.join([col + '=?' for col in column_names]))
+        c = self._conn.cursor()
+        c.execute(stmt, list(params))
+        return [Clinic(*row) for row in c.fetchall()]
     
     def delete(self, **keyvals):
         column_names = keyvals.keys()
@@ -51,32 +107,119 @@ class Dao:
         cond_column_names = cond.keys()
         cond_params = cond.values()
  
-        params = set_params + cond_params
+        params = list(set_params) + list(cond_params)
  
-        stmt = 'UPDATE {} SET ({}) WHERE ({})'.format(self._table_name,
+        stmt = 'UPDATE {} SET {} WHERE {}'.format(self._table_name,
+                                                      ', '.join([set + '=?' for set in set_column_names]),
+                                                      ' AND '.join([cond + '=?' for cond in cond_column_names]))
+        self._conn.execute(stmt, params)
+    
+class Logistics:
+    def __init__(self, conn):
+        self._conn = conn
+        self._table_name = 'logistics'
+ 
+    def insert(self, vaccine):
+        ins_dict = vars(vaccine)
+ 
+        column_names = ','.join(ins_dict.keys())
+        params = ins_dict.values()
+        qmarks = ','.join(['?'] * len(ins_dict))
+ 
+        stmt = 'INSERT INTO {} ({}) VALUES ({})'.format(self._table_name, column_names, qmarks)
+        self._conn.execute(stmt, list(params))
+ 
+    def find_all(self):
+        c = self._conn.cursor()
+        c.execute('SELECT * FROM {}'.format(self._table_name))
+        return [Logistic(*row) for row in c.fetchall()]
+    
+ 
+    def find(self, **keyvals):
+        column_names = keyvals.keys()
+        params = keyvals.values()
+ 
+        stmt = 'SELECT * FROM {} WHERE {}'.format(self._table_name, ' AND '.join([col + '=?' for col in column_names]))
+ 
+        c = self._conn.cursor()
+        c.execute(stmt, list(params))
+        return [Logistic(*row) for row in c.fetchall()]
+    
+    def delete(self, **keyvals):
+        column_names = keyvals.keys()
+        params = keyvals.values()
+ 
+        stmt = 'DELETE FROM {} WHERE {}'.format(self._table_name, ' AND '.join([col + '=?' for col in column_names]))
+ 
+        c = self._conn.cursor()
+        c.execute(stmt, params)
+
+    def update(self, set_values, cond):
+        set_column_names = set_values.keys()
+        set_params = set_values.values()
+ 
+        cond_column_names = cond.keys()
+        cond_params = cond.values()
+ 
+        params = list(set_params) + list(cond_params)
+ 
+        stmt = 'UPDATE {} SET {} WHERE {}'.format(self._table_name,
                                                       ', '.join([set + '=?' for set in set_column_names]),
                                                       ' AND '.join([cond + '=?' for cond in cond_column_names]))
  
-        self._conn.execute(stmt, params)
+        self._conn.execute(stmt, list(params))
     
+class Suppliers:
+    def __init__(self, conn):
+        self._conn = conn
+        self._table_name = 'suppliers'
+ 
+    def insert(self, vaccine):
+        ins_dict = vars(vaccine)
+ 
+        column_names = ','.join(ins_dict.keys())
+        params = ins_dict.values()
+        qmarks = ','.join(['?'] * len(ins_dict))
+ 
+        stmt = 'INSERT INTO {} ({}) VALUES ({})'.format(self._table_name, column_names, qmarks)
+        self._conn.execute(stmt, list(params))
+ 
+    def find_all(self):
+        c = self._conn.cursor()
+        c.execute('SELECT * FROM {}'.format(self._table_name))
+        return [Supplier(*row) for row in c.fetchall()]
+ 
+    def find(self, **keyvals):
+        column_names = keyvals.keys()
+        params = keyvals.values()
+ 
+        stmt = 'SELECT * FROM {} WHERE {}'.format(self._table_name, ' AND '.join([col + '=?' for col in column_names]))
+ 
+        c = self._conn.cursor()
+        c.execute(stmt, list(params))
+        return [Supplier(*row) for row in c.fetchall()]
+    
+    def delete(self, **keyvals):
+        column_names = keyvals.keys()
+        params = keyvals.values()
+ 
+        stmt = 'DELETE FROM {} WHERE {}'.format(self._table_name, ' AND '.join([col + '=?' for col in column_names]))
+ 
+        c = self._conn.cursor()
+        c.execute(stmt, params)
 
-def orm(cursor, dto_type):
+    def update(self, set_values, cond):
+        set_column_names = set_values.keys()
+        set_params = set_values.values()
  
-    #the following line retrieve the argument names of the constructor
-    args = inspect.getargspec(dto_type.__init__).args
+        cond_column_names = cond.keys()
+        cond_params = cond.values()
+ 
+        params = list(set_params) + list(cond_params)
+ 
+        stmt = 'UPDATE {} SET {} WHERE {}'.format(self._table_name,
+                                                      ', '.join([set + '=?' for set in set_column_names]),
+                                                      ' AND '.join([cond + '=?' for cond in cond_column_names]))
+ 
+        self._conn.execute(stmt, list(params))
     
-    #the first argument of the constructor will be 'self', it does not correspond 
-    #to any database field, so we can ignore it.
-    args = args[1:]  
-
-    #gets the names of the columns returned in the cursor
-    col_names = [column[0] for column in cursor.description]
-    
-    #map them into the position of the corresponding constructor argument
-    col_mapping = [col_names.index(arg) for arg in args]
-    return [row_map(row, col_mapping, dto_type) for row in cursor.fetchall()]
- 
- 
-def row_map(row, col_mapping, dto_type):
-    ctor_args = [row[idx] for idx in col_mapping]
-    return dto_type(*ctor_args)
