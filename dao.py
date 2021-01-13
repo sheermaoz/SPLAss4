@@ -24,7 +24,7 @@ class Vaccines:
     
     def find_all_by_date(self):
         c = self._conn.cursor()
-        c.execute('SELECT * FROM {} ORDER BY date DESC'.format(self._table_name))
+        c.execute('SELECT * FROM {} ORDER BY date'.format(self._table_name))
         return [Vaccine(*row) for row in c.fetchall()]
  
     def find(self, **keyvals):

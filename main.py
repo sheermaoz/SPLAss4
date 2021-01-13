@@ -88,7 +88,7 @@ def insert(path):
     
 
 def main():
-    open(sys.argv[3]).close()
+    open(sys.argv[3], 'w').close()
     repo.create_tables()
     insert(sys.argv[1])
     get_orders(sys.argv[2], sys.argv[3])
